@@ -1,4 +1,4 @@
-package com.weinfuse.beassessment.bos.bowling;
+package com.weinfuse.beassessment.bos;
 
 import lombok.Getter;
 import lombok.Setter;

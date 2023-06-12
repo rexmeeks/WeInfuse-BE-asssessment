@@ -1,9 +1,10 @@
-package com.weinfuse.beassessment.service.bowling;
+package com.weinfuse.beassessment.service;
 
-import com.weinfuse.beassessment.bos.bowling.CalculateScoreRequest;
-import com.weinfuse.beassessment.bos.bowling.CalculateScoreResponse;
+import com.weinfuse.beassessment.bos.CalculateScoreRequest;
+import com.weinfuse.beassessment.bos.CalculateScoreResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class BowlingScoreCalculatorService {
 
                 currentScores.add(score);
 
-                if(!nextScores.isEmpty()) {
+                if(!CollectionUtils.isEmpty(nextScores)) {
                     nextScores.add(score);
                 }
             } else {
@@ -106,7 +107,7 @@ public class BowlingScoreCalculatorService {
             if(currentScores.size() == 3) {
                 scoringTuples.add(new ArrayList<>(currentScores));
                 currentScores.clear();
-                if(!nextScores.isEmpty()) {
+                if(!CollectionUtils.isEmpty(nextScores)) {
                     currentScores.addAll(new ArrayList<>(nextScores));
                     nextScores.clear();
                     if(!(s.equalsIgnoreCase("X") || s.equals("/")) && currentScores.get(0) == 10) {
@@ -122,12 +123,12 @@ public class BowlingScoreCalculatorService {
 
             // case where a full game isn't passed in and a frame can't be scored yet
             if(scoringTuples.size() < 10 && increment.get() == frameScores.size() - 1) {
-                if (!currentScores.isEmpty()) {
+                if (!CollectionUtils.isEmpty(currentScores)) {
                     scoringTuples.add(null);
                 }
                 // have to check the number of scores already calculated to make sure not pulling next score values that wouldn't come in,
                 // in the case of a strike happening in the final frame (since those don't take the sums of the next throws)
-                if(scoringTuples.size() < 9 && !nextScores.isEmpty()) {
+                if(scoringTuples.size() < 9 && !CollectionUtils.isEmpty(nextScores)) {
                     scoringTuples.add(null);
                 }
             }

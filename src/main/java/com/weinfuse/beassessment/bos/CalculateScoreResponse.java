@@ -1,4 +1,4 @@
-package com.weinfuse.beassessment.bos.bowling;
+package com.weinfuse.beassessment.bos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,5 +11,6 @@ import java.util.List;
 public class CalculateScoreResponse {
 
     private List<List<Integer>> calculatedScores = new ArrayList<>();
+    private List<String> errors;
 
 }
