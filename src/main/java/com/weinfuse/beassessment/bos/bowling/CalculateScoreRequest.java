@@ -8,5 +8,5 @@ import java.util.List;
 @Getter
 @Setter
 public class CalculateScoreRequest {
-    private List<String> individualFrameScores;
+    private List<List<String>> individualFrameScores;
 }

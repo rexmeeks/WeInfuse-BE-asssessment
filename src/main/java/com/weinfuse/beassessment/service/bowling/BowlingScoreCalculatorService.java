@@ -8,78 +8,24 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class BowlingScoreCalculatorService {
 
 
-    // knowing bowling is only 13 frames, I figured memory wouldn't be an issue in this case,
-    // which is why I'm just copying arrays (aside from obviously preserving data and making this easier in terms of building out tuples)
+    /*
+     * Since this is a bowling score calculator I will be operating under the assumption that the most frames that will be sent
+     * and calculated will be up to 13, as a full game is 13 frames.
+     */
     public CalculateScoreResponse calculateBowlingScores(CalculateScoreRequest calculateScoreRequest) {
-        List<String> frameScores = calculateScoreRequest.getIndividualFrameScores();
-        List<Integer> calculatedScores = new ArrayList<>();
 
-        List<List<Integer>> temp = new ArrayList<>();
-        List<Integer> currentScores = new ArrayList<>();
-        List<Integer> nextScores = new ArrayList<>();
-        AtomicInteger increment = new AtomicInteger(0);
+        CalculateScoreResponse calculateScoreResponse = new CalculateScoreResponse();
 
-        frameScores.forEach(s -> {
-            if(s.equalsIgnoreCase("X")) {
-                // shouldn't have to do this, but for understanding sake, because nextScores will be [10]
-                switch (currentScores.size()) {
-                    case 1 -> {
-                        currentScores.add(10);
-                        nextScores.add(10);
-                    }
-                    case 2 -> {
-                        currentScores.add(10);
-                        temp.add(new ArrayList<>(currentScores));
-                        currentScores.clear();
-                        currentScores.addAll(new ArrayList<>(nextScores));
-                        currentScores.add(10);
-                        nextScores.clear();
-                        nextScores.add(10);
-                    }
-                    default -> currentScores.add(10);
-                }
-            } else if(s.equalsIgnoreCase("/")) {
-                currentScores.add(10 - currentScores.get(0));
-            } else {
-                currentScores.add(Integer.parseInt(s));
-                if(currentScores.get(0) == 10) {
-                    nextScores.add(Integer.parseInt(s));
-                }
-                if(currentScores.size() == 2 && currentScores.get(0) + Integer.parseInt(s) < 10) {
-                    temp.add(new ArrayList<>(currentScores));
-                    currentScores.clear();
-                    nextScores.clear();
-                }
-            }
+        calculateScoreRequest.getIndividualFrameScores().forEach(playerScore ->
+            calculateScoreResponse.getCalculatedScores().add(calculateIndividualsFrames(playerScore))
+        );
 
-            if(currentScores.size() == 3) {
-                temp.add(new ArrayList<>(currentScores));
-                currentScores.clear();
-                if(!nextScores.isEmpty()) {
-                    currentScores.addAll(new ArrayList<>(nextScores));
-                    nextScores.clear();
-                    if(!(s.equalsIgnoreCase("X") || s.equalsIgnoreCase("/"))) {
-                        nextScores.add(Integer.parseInt(s));
-                    }
-                    if(increment.get() == frameScores.size() - 1) {
-                        // todo nextscores has to be complete, otherwise it may be null in the case of strikes
-                        temp.add(currentScores);
-                    }
-                } else {
-                    currentScores.add(Integer.parseInt(s));
-                }
-            }
-            increment.getAndIncrement();
-        });
-
-        log.info(temp.toString());
 
 //        for(int i = 0; i < frameScores.size(); i++) {
 //            String currentFrame = frameScores.get(i);
@@ -110,8 +56,133 @@ public class BowlingScoreCalculatorService {
 //            }
 //        }
 
-        CalculateScoreResponse calculateScoreResponse = new CalculateScoreResponse();
-        calculateScoreResponse.setCalculatedScores(calculatedScores);
+
         return calculateScoreResponse;
+    }
+
+    private List<Integer> calculateIndividualsFrames(List<String> frameScores) {
+        List<List<Integer>> temp = new ArrayList<>();
+        List<Integer> currentScores = new ArrayList<>();
+        List<Integer> nextScores = new ArrayList<>();
+        AtomicInteger increment = new AtomicInteger(0);
+
+        /*
+         * essentially breaking everything in to tuples, so if you have [9, /, 7, 2, X, X, X, 5, 4]
+         * you'll end up with this [[9, 1, 7], [7, 2], [10, 10, 10], [10, 10, 5], [10, 5, 4], [5, 4]]
+         * and then you sum up each tuple
+         * [17, 9, 30, 25, 19, 9]
+         * this is probably the ideal solution; but there was a period where the fact I bowl so much made me start implementing the scoring
+         * in basic "human" calculation where I'd mark something as a strike, and then add the next two, or if it's a spare add the next one
+         * Not necessarily bad, just kind of a bland algorithm and doesn't demonstrate the relations between individual frames as well
+         * Way easier to understand plainly to people who aren't as tech focused, but I think this is much more "clean" and fun to code
+         * (I left what I was kind of attempting at first just so y'all can see the thought process)
+         */
+        frameScores.forEach(s -> {
+
+            // knowing bowling is at max 12 frames, I figured memory wouldn't be an issue in this case,
+            // which is why I'm just copying arrays (aside from obviously preserving data and making this easier in terms of building out tuples)
+            Integer score = null;
+
+            if(s.equalsIgnoreCase("X")) {
+                score = 10;
+                switch (currentScores.size()) {
+                    case 1 -> {
+                        currentScores.add(10);
+                        nextScores.add(10);
+
+                    }
+                    case 2 -> {
+                        currentScores.add(10);
+                        temp.add(new ArrayList<>(currentScores));
+                        currentScores.clear();
+                        currentScores.addAll(new ArrayList<>(nextScores));
+                        currentScores.add(10);
+                    }
+                    default -> currentScores.add(10);
+                }
+            } else if(s.equals("/")) {
+                if(currentScores.size() == 2) {
+                    // edge case for final frame
+                    score = 10 - currentScores.get(1);
+                } else {
+                    score = 10 - currentScores.get(0);
+                }
+
+                currentScores.add(score);
+
+                if(!nextScores.isEmpty()) {
+                    nextScores.add(score);
+                }
+            } else {
+                // make this everywhere
+                score = Integer.parseInt(s);
+                if (currentScores.size() == 2 && currentScores.get(0) + currentScores.get(1) < 10){
+                    temp.add(new ArrayList<>(currentScores));
+                    currentScores.clear();
+                    nextScores.clear();
+                }
+
+                currentScores.add(score);
+
+                if(currentScores.get(0) == 10) {
+                    nextScores.add(score);
+                }
+                if(currentScores.size() == 2 && currentScores.get(0) + score < 10) {
+                    temp.add(new ArrayList<>(currentScores));
+                    currentScores.clear();
+                    nextScores.clear();
+                }
+            }
+
+            if(currentScores.size() == 3) {
+                temp.add(new ArrayList<>(currentScores));
+                currentScores.clear();
+                if(!nextScores.isEmpty()) {
+                    currentScores.addAll(new ArrayList<>(nextScores));
+                    nextScores.clear();
+                    if(!(s.equalsIgnoreCase("X") || s.equals("/")) && currentScores.get(0) == 10) {
+                        nextScores.add(score);
+                    }
+                    if(temp.size() < 9 && increment.get() == frameScores.size() - 1) {
+                        // todo nextscores has to be complete, otherwise it may be null in the case of strikes UNLESS it's the 13th frame
+                        temp.add(new ArrayList<>(currentScores));
+                    }
+                } else {
+                    currentScores.add(score);
+                }
+            }
+
+            // case where a full game isn't passed in and a frame can't be scored yet
+            if(temp.size() < 10 && increment.get() == frameScores.size() - 1) {
+                if (!currentScores.isEmpty()) {
+                    temp.add(null);
+                }
+                // have to check the number of scores already calculated to make sure not pulling next score values that wouldn't come in,
+                // in the case of a strike happening in the final frame (since those don't take the sums of the next throws)
+                if(temp.size() < 9 && !nextScores.isEmpty()) {
+                    temp.add(null);
+                }
+            }
+
+            increment.getAndIncrement();
+        });
+
+        log.info(temp.toString());
+
+        // todo sum up the tuples
+
+        return sumTuples(temp);
+    }
+
+    private List<Integer> sumTuples(List<List<Integer>> tupleList) {
+        List<Integer> scores = new ArrayList<>();
+        tupleList.forEach(tuple -> {
+            if(tuple != null) {
+                scores.add(tuple.stream().mapToInt(i -> i).sum());
+            } else {
+                scores.add(null);
+            }
+        });
+        return scores;
     }
 }

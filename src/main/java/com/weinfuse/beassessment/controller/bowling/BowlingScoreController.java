@@ -19,6 +19,7 @@ public class BowlingScoreController {
     @Autowired
     private BowlingScoreCalculatorService bowlingScoreCalculatorService;
 
+    // todo add validation to make sure array is good
     @RequestMapping(path = "/calculateScores", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<CalculateScoreResponse> calculateBowlingScores(@RequestBody CalculateScoreRequest calculateScoreRequest) {
         CalculateScoreResponse calculateScoreResponse = bowlingScoreCalculatorService.calculateBowlingScores(calculateScoreRequest);
