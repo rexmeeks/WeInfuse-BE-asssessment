@@ -23,11 +23,16 @@ public class BowlingScoreController {
 
     @RequestMapping(path = "/calculateScores", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<CalculateScoreResponse> calculateBowlingScores(@RequestBody CalculateScoreRequest calculateScoreRequest) {
+
+        log.info("Recieved request to calculate bowling scores");
+
         CalculateScoreResponse calculateScoreResponse = BowlingScoreRequestValidator.staticValidator.validateBowlingScoreCalculationRequest(calculateScoreRequest);
 
         if(calculateScoreResponse != null) {
             return new ResponseEntity<>(calculateScoreResponse, HttpStatus.BAD_REQUEST);
         }
+
+        log.info("Request validated successfully");
 
         // theoretically, the validation should have prevented any issues that would come up here, so we'll just return what it returns
         // in a more robust system you'd have error handling in the service class so it won't always return what you expect, but it should here

@@ -22,10 +22,15 @@ public class BowlingScoreCalculatorService {
     public CalculateScoreResponse calculateBowlingScores(CalculateScoreRequest calculateScoreRequest) {
 
         CalculateScoreResponse calculateScoreResponse = new CalculateScoreResponse();
+        AtomicInteger playerNumber = new AtomicInteger(1);
 
-        calculateScoreRequest.getIndividualFrameScores().forEach(playerScore ->
-            calculateScoreResponse.getCalculatedScores().add(calculateIndividualsFrames(playerScore))
-        );
+        log.info("In Bowling Calculator Service");
+
+        calculateScoreRequest.getIndividualFrameScores().forEach(playerScore -> {
+                log.info("Calculating score for player {}", playerNumber.get());
+                calculateScoreResponse.getCalculatedScores().add(calculateIndividualsFrames(playerScore));
+                playerNumber.getAndIncrement();
+        });
 
         return calculateScoreResponse;
     }
@@ -35,6 +40,8 @@ public class BowlingScoreCalculatorService {
         List<Integer> currentScores = new ArrayList<>();
         List<Integer> nextScores = new ArrayList<>();
         AtomicInteger increment = new AtomicInteger(0);
+
+        log.info("Starting frame calculations for: {}", frameScores.toString());
 
         /*
          * essentially breaking everything in to tuples, so if you have [9, /, 7, 2, X, X, X, 5, 4]
@@ -143,6 +150,9 @@ public class BowlingScoreCalculatorService {
     }
 
     private List<Integer> sumTuples(List<List<Integer>> tupleList) {
+
+        log.info("Summing up the tuples now");
+
         List<Integer> scores = new ArrayList<>();
         tupleList.forEach(tuple -> {
             if(tuple != null) {
