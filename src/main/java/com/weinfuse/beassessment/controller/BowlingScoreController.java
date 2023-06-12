@@ -23,7 +23,7 @@ public class BowlingScoreController {
 
     @RequestMapping(path = "/calculateScores", consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public ResponseEntity<CalculateScoreResponse> calculateBowlingScores(@RequestBody CalculateScoreRequest calculateScoreRequest) {
-        CalculateScoreResponse calculateScoreResponse = BowlingScoreRequestValidator.validateBowlingScoreCalculationRequest(calculateScoreRequest);
+        CalculateScoreResponse calculateScoreResponse = BowlingScoreRequestValidator.staticValidator.validateBowlingScoreCalculationRequest(calculateScoreRequest);
 
         if(calculateScoreResponse != null) {
             return new ResponseEntity<>(calculateScoreResponse, HttpStatus.BAD_REQUEST);
