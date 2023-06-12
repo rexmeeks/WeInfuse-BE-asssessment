@@ -1,19 +1,12 @@
-# Getting Started
+# Summary
 
-### Reference Documentation
+This bowling score calculator operates takes a list of individual frame scores and returns the sum of each frame into an ordered 
+calculated scores list. 
 
-For further reference, please consider the following sections:
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/3.1.0/maven-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/3.1.0/maven-plugin/reference/html/#build-image)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/3.1.0/reference/htmlsingle/#web)
+This calculator operates under the assumption that games are at max 10-12 frames, with a max of 21 throws.
+Just like bowling, a strike takes the sum of the next two throws and a spare takes the sum of the next throw.
+A strike is unable to be calculated without the next two throws (unless it's the end of the game,) so it will
 
-### Guides
 
-The following guides illustrate how to use some features concretely:
-
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
-
+# Running the application
