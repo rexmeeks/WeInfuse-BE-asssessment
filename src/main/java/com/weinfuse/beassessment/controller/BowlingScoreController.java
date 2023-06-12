@@ -30,6 +30,7 @@ public class BowlingScoreController {
         }
 
         // theoretically, the validation should have prevented any issues that would come up here, so we'll just return what it returns
+        // in a more robust system you'd have error handling in the service class so it won't always return what you expect, but it should here
         calculateScoreResponse = bowlingScoreCalculatorService.calculateBowlingScores(calculateScoreRequest);
         return new ResponseEntity<>(calculateScoreResponse, HttpStatus.OK);
     }

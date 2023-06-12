@@ -45,7 +45,6 @@ public class BowlingScoreCalculatorService {
          * in basic "human" calculation where I'd mark something as a strike, and then add the next two, or if it's a spare add the next one
          * Not necessarily bad, just kind of a bland algorithm and doesn't demonstrate the relations between individual frames as well
          * Way easier to understand plainly to people who aren't as tech focused, but I think this is much more "clean" and fun to code
-         * (I left what I was kind of attempting at first just so y'all can see the thought process)
          */
         frameScores.forEach(s -> {
 
@@ -54,6 +53,7 @@ public class BowlingScoreCalculatorService {
             Integer score;
 
             if(s.equalsIgnoreCase("X")) {
+                // if it's a strike
                 score = 10;
                 switch (currentScores.size()) {
                     case 1 -> {
@@ -71,6 +71,7 @@ public class BowlingScoreCalculatorService {
                     default -> currentScores.add(10);
                 }
             } else if(s.equals("/")) {
+                // if it's a spare
                 if(currentScores.size() == 2) {
                     // edge case for final frame
                     score = 10 - currentScores.get(1);
@@ -84,7 +85,7 @@ public class BowlingScoreCalculatorService {
                     nextScores.add(score);
                 }
             } else {
-                // make this everywhere
+                // the case where the score is a number
                 score = Integer.parseInt(s);
                 if (currentScores.size() == 2 && currentScores.get(0) + currentScores.get(1) < 10){
                     scoringTuples.add(new ArrayList<>(currentScores));
@@ -104,6 +105,8 @@ public class BowlingScoreCalculatorService {
                 }
             }
 
+            // the big part that decides when a roll is complete, this will be in the cases of strikes and spares, otherwise
+            // it'll be handled above
             if(currentScores.size() == 3) {
                 scoringTuples.add(new ArrayList<>(currentScores));
                 currentScores.clear();

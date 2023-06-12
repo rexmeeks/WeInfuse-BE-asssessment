@@ -52,6 +52,7 @@ public class BowlingScoreRequestValidator {
                 return null;
             }).collect(Collectors.toList());
 
+            // only return the playerScoreErrors if it's non empty for at least one player
             if(playerScoreErrors.stream().anyMatch(Objects::nonNull)) {
                 calculateScoreResponse.setErrors(playerScoreErrors);
                 return calculateScoreResponse;
