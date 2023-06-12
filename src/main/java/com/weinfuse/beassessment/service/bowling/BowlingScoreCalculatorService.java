@@ -26,42 +26,11 @@ public class BowlingScoreCalculatorService {
             calculateScoreResponse.getCalculatedScores().add(calculateIndividualsFrames(playerScore))
         );
 
-
-//        for(int i = 0; i < frameScores.size(); i++) {
-//            String currentFrame = frameScores.get(i);
-//            if(currentFrame.equals("X") || currentFrame.equals("/")) {
-//                log.error("ehh");
-//            } else {
-//                try {
-//                    Integer score = Integer.parseInt(currentFrame);
-//                    if(carriedScore != null) {
-//                        if(carriedScore < 10) {
-//                            calculatedScores.add(carriedScore + score);
-//                            carriedScore = null;
-//                        } else if (!strike){
-//                            carriedScore += score;
-//                            calculatedScores.add(carriedScore);
-//                            carriedScore = score;
-//                        } else {
-//                            carriedScore += score;
-//                            strike = false;
-//                        }
-//                    } else {
-//                        carriedScore += score;
-//                    }
-//                } catch (NumberFormatException e) {
-//                    // todo error handling
-//                    log.error("Someone scored a value that is impossible");
-//                }
-//            }
-//        }
-
-
         return calculateScoreResponse;
     }
 
     private List<Integer> calculateIndividualsFrames(List<String> frameScores) {
-        List<List<Integer>> temp = new ArrayList<>();
+        List<List<Integer>> scoringTuples = new ArrayList<>();
         List<Integer> currentScores = new ArrayList<>();
         List<Integer> nextScores = new ArrayList<>();
         AtomicInteger increment = new AtomicInteger(0);
@@ -81,7 +50,7 @@ public class BowlingScoreCalculatorService {
 
             // knowing bowling is at max 12 frames, I figured memory wouldn't be an issue in this case,
             // which is why I'm just copying arrays (aside from obviously preserving data and making this easier in terms of building out tuples)
-            Integer score = null;
+            Integer score;
 
             if(s.equalsIgnoreCase("X")) {
                 score = 10;
@@ -93,7 +62,7 @@ public class BowlingScoreCalculatorService {
                     }
                     case 2 -> {
                         currentScores.add(10);
-                        temp.add(new ArrayList<>(currentScores));
+                        scoringTuples.add(new ArrayList<>(currentScores));
                         currentScores.clear();
                         currentScores.addAll(new ArrayList<>(nextScores));
                         currentScores.add(10);
@@ -117,7 +86,7 @@ public class BowlingScoreCalculatorService {
                 // make this everywhere
                 score = Integer.parseInt(s);
                 if (currentScores.size() == 2 && currentScores.get(0) + currentScores.get(1) < 10){
-                    temp.add(new ArrayList<>(currentScores));
+                    scoringTuples.add(new ArrayList<>(currentScores));
                     currentScores.clear();
                     nextScores.clear();
                 }
@@ -128,14 +97,14 @@ public class BowlingScoreCalculatorService {
                     nextScores.add(score);
                 }
                 if(currentScores.size() == 2 && currentScores.get(0) + score < 10) {
-                    temp.add(new ArrayList<>(currentScores));
+                    scoringTuples.add(new ArrayList<>(currentScores));
                     currentScores.clear();
                     nextScores.clear();
                 }
             }
 
             if(currentScores.size() == 3) {
-                temp.add(new ArrayList<>(currentScores));
+                scoringTuples.add(new ArrayList<>(currentScores));
                 currentScores.clear();
                 if(!nextScores.isEmpty()) {
                     currentScores.addAll(new ArrayList<>(nextScores));
@@ -143,9 +112,8 @@ public class BowlingScoreCalculatorService {
                     if(!(s.equalsIgnoreCase("X") || s.equals("/")) && currentScores.get(0) == 10) {
                         nextScores.add(score);
                     }
-                    if(temp.size() < 9 && increment.get() == frameScores.size() - 1) {
-                        // todo nextscores has to be complete, otherwise it may be null in the case of strikes UNLESS it's the 13th frame
-                        temp.add(new ArrayList<>(currentScores));
+                    if(scoringTuples.size() < 9 && increment.get() == frameScores.size() - 1) {
+                        scoringTuples.add(new ArrayList<>(currentScores));
                     }
                 } else {
                     currentScores.add(score);
@@ -153,25 +121,21 @@ public class BowlingScoreCalculatorService {
             }
 
             // case where a full game isn't passed in and a frame can't be scored yet
-            if(temp.size() < 10 && increment.get() == frameScores.size() - 1) {
+            if(scoringTuples.size() < 10 && increment.get() == frameScores.size() - 1) {
                 if (!currentScores.isEmpty()) {
-                    temp.add(null);
+                    scoringTuples.add(null);
                 }
                 // have to check the number of scores already calculated to make sure not pulling next score values that wouldn't come in,
                 // in the case of a strike happening in the final frame (since those don't take the sums of the next throws)
-                if(temp.size() < 9 && !nextScores.isEmpty()) {
-                    temp.add(null);
+                if(scoringTuples.size() < 9 && !nextScores.isEmpty()) {
+                    scoringTuples.add(null);
                 }
             }
 
             increment.getAndIncrement();
         });
 
-        log.info(temp.toString());
-
-        // todo sum up the tuples
-
-        return sumTuples(temp);
+        return sumTuples(scoringTuples);
     }
 
     private List<Integer> sumTuples(List<List<Integer>> tupleList) {
