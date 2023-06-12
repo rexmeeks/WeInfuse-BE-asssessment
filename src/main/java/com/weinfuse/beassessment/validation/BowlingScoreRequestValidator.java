@@ -32,15 +32,21 @@ public class BowlingScoreRequestValidator {
                     return "Must pass in scores to be tallied";
                 }
 
-                if (playerScores.size() > 21) {
-                    return "Somebody threw the ball too many times; games are at max of 21 throws.";
-                }
-
                 String scores = StringUtils.join(playerScores, "");
 
                 // if the size doesn't match up that means someone used a 2 digit number and that is wrong
                 if (!scores.matches("^[0-9/X]*$") || scores.length() != playerScores.size()) {
                     return "Frame scores may only be 0-9, /, and X";
+                }
+
+                if (playerScores.stream().mapToDouble(score -> {
+                    if(score.equalsIgnoreCase("X")) {
+                        return 1;
+                    } else {
+                        return .5;
+                    }
+                }).sum() > 12) {
+                    return "A game of bowling cannot be greater than 10-12 frames";
                 }
 
                 return null;

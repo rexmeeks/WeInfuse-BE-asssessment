@@ -3,13 +3,13 @@ package com.weinfuse.beassessment.controller;
 import com.weinfuse.beassessment.bos.CalculateScoreRequest;
 import com.weinfuse.beassessment.bos.CalculateScoreResponse;
 import com.weinfuse.beassessment.service.BowlingScoreCalculatorService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class BowlingScoreControllerTests {
         // since I'm not using any external services, I could just use this whole thing as the test, but I'd rather keep it like it should be, with the mocks
         when(bowlingScoreCalculatorService.calculateBowlingScores(any())).thenReturn(new CalculateScoreResponse());
         ResponseEntity<CalculateScoreResponse> calculateScoreResponseResponseEntity = bowlingScoreController.calculateBowlingScores(calculateScoreRequest);
-        Assert.isTrue(calculateScoreResponseResponseEntity.getStatusCode() == HttpStatus.OK, "Http status should be a 200");
+        Assertions.assertEquals(calculateScoreResponseResponseEntity.getStatusCode(), HttpStatus.OK);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class BowlingScoreControllerTests {
         // since I'm not using any external services, I could just use this whole thing as the test, but I'd rather keep it like it should be, with the mocks
         when(bowlingScoreCalculatorService.calculateBowlingScores(any())).thenReturn(new CalculateScoreResponse());
         ResponseEntity<CalculateScoreResponse> calculateScoreResponseResponseEntity = bowlingScoreController.calculateBowlingScores(calculateScoreRequest);
-        Assert.isTrue(calculateScoreResponseResponseEntity.getStatusCode() == HttpStatus.OK, "Http status should be a 200");
+        Assertions.assertEquals(calculateScoreResponseResponseEntity.getStatusCode(), HttpStatus.OK);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class BowlingScoreControllerTests {
         // since I'm not using any external services, I could just use this whole thing as the test, but I'd rather keep it like it should be, with the mocks
         when(bowlingScoreCalculatorService.calculateBowlingScores(any())).thenReturn(new CalculateScoreResponse());
         ResponseEntity<CalculateScoreResponse> calculateScoreResponseResponseEntity = bowlingScoreController.calculateBowlingScores(calculateScoreRequest);
-        Assert.isTrue(!CollectionUtils.isEmpty(calculateScoreResponseResponseEntity.getBody().getErrors()), "There should be errors for wrong input");
-        Assert.isTrue(calculateScoreResponseResponseEntity.getStatusCode() == HttpStatus.BAD_REQUEST, "Http status should be 400");
+        Assertions.assertFalse(CollectionUtils.isEmpty(calculateScoreResponseResponseEntity.getBody().getErrors()));
+        Assertions.assertEquals(calculateScoreResponseResponseEntity.getStatusCode(), HttpStatus.BAD_REQUEST);
     }
 }
