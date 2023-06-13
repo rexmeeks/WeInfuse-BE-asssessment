@@ -23,6 +23,19 @@ Response:
 }
 ```
 
+* (Errors will be an ordered list of errors for each individual player, like below in the case of player 3 being the only
+  correctly represented game, so it's null)
+    ```
+    {
+        "calculatedScores": [],
+        "errors": [
+            "Frame scores may only be 0-9, /, and X",
+            "Frame scores may only be 0-9, /, and X",
+            null,
+            "Frame scores may only be 0-9, /, and X"
+        ]
+    }  
+    ```
 
 This calculator operates under the assumption that games are at max 10-12 frames, with a max of 21 throws.
 Just like bowling, a strike takes the sum of the next two throws and a spare takes the sum of the next throw.
